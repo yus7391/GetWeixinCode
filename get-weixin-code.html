@@ -60,26 +60,28 @@
                     var redirectUri;
 
                     if (!code) {
-                        baseUrl = "https://open.weixin.qq.com/connect/oauth2/authorize#wechat_redirect";
+                        baseUrl = "https://open.weixin.qq.com/connect/oauth2/authorize";
                         if(scope == 'snsapi_login' && !isMp){
                             baseUrl = "https://open.weixin.qq.com/connect/qrconnect";
                         }
                         //第一步，没有拿到code，跳转至微信授权页面获取code
                         redirectUri = GWC.appendParams(baseUrl, {
                             'appid': appId,
-                            'redirect_uri': encodeURIComponent(location.href),
+                            'redirect_uri': encodeURIComponent(location.href.substr(0,location.href.indexOf('?'))),
                             'response_type': 'code',
                             'scope': scope,
                             'state': state,
                         });
+                        redirectUri+='#wechat_redirect';
+                        sessionStorage.setItem('href',GWC.urlParams['redirect_uri']);
                     } else {
                         //第二步，从微信授权页面跳转回来，已经获取到了code，再次跳转到实际所需页面
-                        redirectUri = GWC.appendParams(GWC.urlParams['redirect_uri'], {
+                        baseUrl = sessionStorage.getItem('href');
+                        redirectUri = GWC.appendParams(baseUrl, {
                             'code': code,
                             'state': state
                         });
                     }
-
                     location.href = redirectUri;
                 }
             };
